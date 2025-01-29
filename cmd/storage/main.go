@@ -3,11 +3,16 @@ package main
 import (
 	"context"
 	"net/http"
+	"os"
+	"os/signal"
+	"syscall"
+	"time"
 
 	_ "github.com/joho/godotenv/autoload"
 	"github.com/mediaprodcast/commons/discovery"
 	"github.com/mediaprodcast/commons/env"
 	"github.com/mediaprodcast/commons/tracer"
+	"github.com/mediaprodcast/storage/internal"
 	"go.uber.org/zap"
 )
 
@@ -19,33 +24,53 @@ func main() {
 
 	zap.ReplaceGlobals(logger)
 
-	// Set up global tracing for the application
-	if err := tracer.SetGlobalTracer(context.TODO(), discovery.ProbeSvsName); err != nil {
-		logger.Fatal("could set global tracer", zap.Error(err))
+	// Set up global tracing
+	if err := tracer.SetGlobalTracer(context.TODO(), discovery.StorageSvsName); err != nil {
+		logger.Fatal("Could not set global tracer", zap.Error(err))
 	}
 
-	ctx := context.Background()
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
-	// Register the service instance in Consul
+	// Handle graceful shutdown
+	sigChan := make(chan os.Signal, 1)
+	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+
+	// Register service in Consul
 	instanceID, registry, err := discovery.Register(ctx, discovery.StorageSvsName, httpAddr)
 	if err != nil {
-		panic(err)
+		logger.Error("Failed to register service", zap.Error(err))
 	}
-
-	// Ensure service deregistration on shutdown
 	defer registry.Deregister(ctx, instanceID, discovery.StorageSvsName)
 
 	mux := http.NewServeMux()
 
-	mux.HandleFunc("GET /healthz", func(w http.ResponseWriter, r *http.Request) {
-		w.WriteHeader(http.StatusOK)
-		w.Write([]byte("OK"))
-	})
+	// Storage proxy
+	mux.HandleFunc("/", internal.StorageHandler)
 
-	logger.Info("Starting storage service", zap.String("port", httpAddr))
+	server := &http.Server{
+		Addr:    httpAddr,
+		Handler: mux,
+	}
 
-	if err := http.ListenAndServe(httpAddr, mux); err != nil {
-		logger.Fatal("Failed to start storage service")
-		panic(err)
+	// Run server in a goroutine
+	go func() {
+		logger.Info("Starting storage service", zap.String("port", httpAddr))
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.Fatal("Server error", zap.Error(err))
+		}
+	}()
+
+	// Wait for shutdown signal
+	<-sigChan
+	logger.Info("Shutting down gracefully...")
+
+	shutdownCtx, shutdownCancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer shutdownCancel()
+
+	if err := server.Shutdown(shutdownCtx); err != nil {
+		logger.Fatal("Failed to shut down server gracefully", zap.Error(err))
+	} else {
+		logger.Info("Server shut down successfully")
 	}
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/minio/minio-go/v7/pkg/credentials"
 )
 
-// Storage is a s3 storage.
+// Storage is a S3 storage.
 type Storage struct {
 	bucket string
 	client *minio.Client
@@ -20,7 +20,7 @@ type Storage struct {
 func NewStorage(cfg defs.S3Config) (*Storage, error) {
 	ctx := context.Background()
 
-	s, err := minio.New(cfg.Hostname, &minio.Options{
+	s, err := minio.New(cfg.Endpoint, &minio.Options{
 		Creds:  credentials.NewStaticV4(cfg.AccessKeyID, cfg.SecretAccessKey, ""),
 		Secure: cfg.EnableSSL,
 	})
@@ -51,6 +51,7 @@ func (s *Storage) Save(ctx context.Context, content io.Reader, path string) erro
 	_, err := s.client.PutObject(ctx, s.bucket, path, content, -1, minio.PutObjectOptions{
 		ContentType: mime.TypeByExtension(filepath.Ext(path)),
 	})
+
 	return err
 }
 

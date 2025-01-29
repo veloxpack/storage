@@ -11,8 +11,8 @@ import (
 )
 
 // NewStorage creates a new storage instance
-func NewStorage(driver defs.StorageDriver, cfg *defs.StorageConfig) (defs.Storage, error) {
-	switch driver {
+func NewStorage(cfg *defs.StorageConfig) (defs.Storage, error) {
+	switch cfg.Driver {
 	case defs.Filesystem:
 		return fs.NewStorage(fs.Config{
 			Root: cfg.Filesystem.DataPath,
@@ -22,6 +22,6 @@ func NewStorage(driver defs.StorageDriver, cfg *defs.StorageConfig) (defs.Storag
 	case defs.AmazonS3:
 		return s3.NewStorage(cfg.S3)
 	default:
-		return nil, fmt.Errorf("storage driver %s does not exist", driver)
+		return nil, fmt.Errorf("storage driver %s does not exist", cfg.Driver)
 	}
 }

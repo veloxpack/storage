@@ -10,18 +10,21 @@ import (
 
 func TestStorage(t *testing.T) {
 	t.Run("should use non-existing storage driver", func(t *testing.T) {
-		_, err := NewStorage("test", &defs.StorageConfig{})
-		assert.EqualError(t, err, "storage driver test does not exist")
+		_, err := NewStorage(&defs.StorageConfig{
+			Driver: "not-defined-driver",
+		})
+		assert.EqualError(t, err, "storage driver not-defined-driver does not exist")
 	})
 
 	t.Run("should initialize Filesystem storage", func(t *testing.T) {
 		cfg := &defs.StorageConfig{
+			Driver: defs.Filesystem,
 			Filesystem: defs.FileSystemConfig{
 				DataPath: "./tmp",
 			},
 		}
 
-		_, err := NewStorage(defs.Filesystem, cfg)
+		_, err := NewStorage(cfg)
 		assert.NoError(t, err)
 	})
 
@@ -31,8 +34,9 @@ func TestStorage(t *testing.T) {
 		t.Skip()
 
 		cfg := &defs.StorageConfig{
+			Driver: defs.AmazonS3,
 			S3: defs.S3Config{
-				Hostname:        "play.min.io",
+				Endpoint:        "play.min.io",
 				AccessKeyID:     "Q3AM3UQ867SPQQA43P2F",
 				SecretAccessKey: "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
 				Bucket:          uuid.New().String(),
@@ -40,7 +44,7 @@ func TestStorage(t *testing.T) {
 			},
 		}
 
-		_, err := NewStorage(defs.AmazonS3, cfg)
+		_, err := NewStorage(cfg)
 		assert.NoError(t, err)
 	})
 }

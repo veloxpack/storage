@@ -77,8 +77,9 @@ func TestS3(t *testing.T) {
 	}(t)
 
 	cfg := &defs.StorageConfig{
+		Driver: defs.AmazonS3,
 		S3: defs.S3Config{
-			Hostname:        endpoint,
+			Endpoint:        endpoint,
 			AccessKeyID:     s3accessKey,
 			SecretAccessKey: s3secretKey,
 			Bucket:          s3bucket,
@@ -87,7 +88,7 @@ func TestS3(t *testing.T) {
 	}
 
 	t.Run("should return error file does not exist", func(t *testing.T) {
-		s, err := storage.NewStorage(defs.AmazonS3, cfg)
+		s, err := storage.NewStorage(cfg)
 		assert.NoError(t, err)
 
 		ctx := context.Background()
@@ -97,7 +98,7 @@ func TestS3(t *testing.T) {
 	})
 
 	t.Run("should create file", func(t *testing.T) {
-		s, err := storage.NewStorage(defs.AmazonS3, cfg)
+		s, err := storage.NewStorage(cfg)
 		assert.NoError(t, err)
 
 		ctx := context.Background()
@@ -107,7 +108,7 @@ func TestS3(t *testing.T) {
 	})
 
 	t.Run("should get metadata of file", func(t *testing.T) {
-		s, err := storage.NewStorage(defs.AmazonS3, cfg)
+		s, err := storage.NewStorage(cfg)
 		assert.NoError(t, err)
 
 		ctx := context.Background()
@@ -130,7 +131,7 @@ func TestS3(t *testing.T) {
 	})
 
 	t.Run("should create then delete file", func(t *testing.T) {
-		s, err := storage.NewStorage(defs.AmazonS3, cfg)
+		s, err := storage.NewStorage(cfg)
 		assert.NoError(t, err)
 
 		ctx := context.Background()
@@ -146,7 +147,7 @@ func TestS3(t *testing.T) {
 	})
 
 	t.Run("should create then open file", func(t *testing.T) {
-		s, err := storage.NewStorage(defs.AmazonS3, cfg)
+		s, err := storage.NewStorage(cfg)
 		assert.NoError(t, err)
 
 		ctx := context.Background()
@@ -164,7 +165,7 @@ func TestS3(t *testing.T) {
 	})
 
 	t.Run("should delete the file", func(t *testing.T) {
-		s, err := storage.NewStorage(defs.AmazonS3, cfg)
+		s, err := storage.NewStorage(cfg)
 		assert.NoError(t, err)
 
 		ctx := context.Background()

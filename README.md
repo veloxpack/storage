@@ -46,30 +46,90 @@ flowchart LR
 
 ---
 
+Here's your updated Markdown with both the raw JSON storage configuration and its Base64-encoded versions:
+
+```md
 ## Example: Media Upload Using Packager
 
-Here’s an example of defining an upload URL and using it with a media packager to stream HLS segments to the **Storage Broker**:
+Here’s an example of defining an upload URL and using it with a media packager to stream HLS segments to the **Storage Broker**.
+
+### Storage Configuration
+
+Before sending the storage configuration, it must be encoded into a Base64 string and included in the `User-Agent` or `X-Storage-Config` header.
+
+#### Sample Storage Config (Raw JSON)
+
+```json
+{
+  "driver": "fs, s3, or gcs",
+  "fs": {
+    "dataPath": "./tmp"
+  },
+  "s3": {
+    "endpoint": "",
+    "accessKeyId": "",
+    "secretAccessKey": "",
+    "region": "",
+    "bucket": "",
+    "enableSSL": false,
+    "usePathStyle": false
+  },
+  "gcs": {
+    "credentialsFile": "",
+    "bucket": ""
+  }
+}
+```
+
+#### Base64 Encoded Storage Config
+
+The above JSON is Base64-encoded before being sent.
 
 ```bash
+# Base64-encoded File System storage config
+FS_STORAGE_BASE64="ewogICJkcml2ZXIiOiAiZnMiLAogICJmcyI6IHsKICAgICJkYXRhUGF0aCI6ICIuL3RtcCIKICB9LAogICJzMyI6IHsKICAgICJlbmRwb2ludCI6ICIiLAogICAgImFjY2Vzc0tleUlkIjogIiIsCiAgICAic2VjcmV0QWNjZXNzS2V5IjogIiIsCiAgICAicmVnaW9uIjogIiIsCiAgICAiYnVja2V0IjogIiIsCiAgICAiZW5hYmxlU1NMIjogZmFsc2UsCiAgICAidXNlUGF0aFN0eWxlIjogZmFsc2UKICB9LAogICJnY3MiOiB7CiAgICAiY3JlZGVudGlhbHNGaWxlIjogIiIsCiAgICAiYnVja2V0IjogIiIKICB9"
 
+# Base64-encoded S3 storage config
+S3_STORAGE_BASE64="ewogICJkcml2ZXIiOiAiczMiLAogICJmcyI6IHsgImRhdGFQYXRoIjogIiIgfSwKICAiczMiOiB7CiAgICAiZW5kcG9pbnQiOiAiMTkyLjE2OC4wLjEwMTo5MDAwIiwKICAgICJhY2Nlc3NLZXlJZCI6ICJtaW5pbyIsCiAgICAic2VjcmV0QWNjZXNzS2V5IjogInBhc3N3b3JkIiwKICAgICJyZWdpb24iOiAiIiwKICAgICJidWNrZXQiOiAibGl2ZSIsCiAgICAiZW5hYmxlU1NMIjogZmFsc2UsCiAgICAidXNlUGF0aFN0eWxlIjogZmFsc2UKICB9LAogICJnY3MiOiB7ICJjcmVkZW50aWFsc0ZpbGUiOiAiIiwgImJ1Y2tldCI6ICIiIH0KfQo="
+```
+
+### Upload and Packaging Process
+
+```bash
 # Define upload URL
 export UPLOAD_URL=http://upload-svc-address/hls-live
 
-# Start packaging and streaming
+UPLOAD_URL="http://localhost:9500/tv1"
+
+# Start packaging and streaming with Storage Config sent via User-Agent or HTTP Header
+
 packager \
     "input=video.mp4,stream=audio,segment_template=${UPLOAD_URL}/audio-\$Number\$.aac,playlist_name=audio.m3u8" \
     "input=video.mp4,stream=video,segment_template=${UPLOAD_URL}/video-\$Number\$.ts,playlist_name=video.m3u8" \
     --hls_master_playlist_output "${UPLOAD_URL}/master.m3u8" \
     --hls_playlist_type LIVE \
+    --user_agent "${FS_STORAGE_BASE64}" \
+    # --header "X-Storage-Config: ${FS_STORAGE_BASE64}" \
     --vmodule=http_file=1
 ```
 
 ### Explanation of the Example:
 
-1. **`UPLOAD_URL`:**
-   Specifies the endpoint of the Storage Broker service where HLS segments will be uploaded.
+1. **Raw JSON Storage Config:**
+   - Shows the actual storage configuration before encoding.
 
-2. **Protocol:**
-   Media segments and playlists are sent to the Storage Broker using HTTP PUT.
+2. **Base64 Encoding:**
+   - The JSON storage config is converted into Base64 format before being sent.
+
+3. **Transmission Methods:**
+   - The encoded config is sent via either:
+     - The `User-Agent` field.
+     - The `X-Storage-Config` HTTP header.
+
+4. **`UPLOAD_URL`:**
+   - Specifies the endpoint of the Storage Broker service where HLS segments will be uploaded.
+
+5. **Protocol:**
+   - Media segments and playlists are sent to the Storage Broker using HTTP PUT.
 
 ---

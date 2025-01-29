@@ -16,30 +16,29 @@ const (
 )
 
 type FileSystemConfig struct {
-	DataPath string `yaml:"data_path" json:"data_path" default:"/data" env:"FS_DATA_PATH"`
+	DataPath string `yaml:"dataPath" json:"dataPath" default:"/data"`
 }
 
 type GCSConfig struct {
-	CredentialsFile string `yaml:"credentials_file" json:"credentials_file" default:"" env:"GCS_CREDENTIALS_FILE"`
-	Bucket          string `yaml:"bucket" json:"bucket" default:"" env:"GCS_BUCKET"`
+	CredentialsFile string `yaml:"credentialsFile" json:"credentialsFile" default:""`
+	Bucket          string `yaml:"bucket" json:"bucket" default:""`
 }
 
 type StorageConfig struct {
-	Driver     string           `yaml:"driver" json:"driver" default:"fs" env:"STORAGE_DRIVER"`
+	Driver     StorageDriver    `yaml:"driver" json:"driver" default:"fs"`
 	Filesystem FileSystemConfig `yaml:"fs" json:"fs"`
 	S3         S3Config         `yaml:"s3" json:"s3"`
 	GCS        GCSConfig        `yaml:"gcs" json:"gcs"`
 }
 
 type S3Config struct {
-	Hostname        string `yaml:"hostname" json:"hostname" default:"" env:"S3_HOSTNAME"`
-	Port            string `yaml:"port" json:"port" default:"" env:"S3_PORT"`
-	AccessKeyID     string `yaml:"access_key_id" json:"access_key_id" env:"S3_ACCESS_KEY_ID"`
-	SecretAccessKey string `yaml:"secret_access_key" json:"secret_access_key" env:"S3_SECRET_ACCESS_KEY"`
-	Region          string `yaml:"region" json:"region" env:"S3_REGION"`
-	Bucket          string `yaml:"bucket" json:"bucket" env:"S3_BUCKET"`
-	EnableSSL       bool   `yaml:"enable_ssl" json:"enable_ssl" default:"true" env:"S3_ENABLE_SSL"`
-	UsePathStyle    bool   `yaml:"use_path_style" json:"use_path_style" default:"false" env:"S3_ENABLE_PATH_STYLE"`
+	Endpoint        string `yaml:"endpoint" json:"endpoint" default:""`
+	AccessKeyID     string `yaml:"accessKeyId" json:"accessKeyId"`
+	SecretAccessKey string `yaml:"secretAccessKey" json:"secretAccessKey"`
+	Region          string `yaml:"region" json:"region"`
+	Bucket          string `yaml:"bucket" json:"bucket"`
+	EnableSSL       bool   `yaml:"enableSSL" json:"enableSSL" default:"true"`
+	UsePathStyle    bool   `yaml:"usePathStyle" json:"usePathStyle" default:"false"`
 }
 
 type FTPConfig struct {
