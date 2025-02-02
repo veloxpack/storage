@@ -7,8 +7,10 @@ import (
 	"path/filepath"
 
 	gstorage "cloud.google.com/go/storage"
+	pb "github.com/mediaprodcast/proto/genproto/go/storage/v1"
 	"github.com/mediaprodcast/storage/pkg/storage/defs"
 	"google.golang.org/api/option"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Storage is a gcs storage.
@@ -45,7 +47,7 @@ func (g *Storage) Save(ctx context.Context, content io.Reader, path string) (rer
 }
 
 // Stat returns path metadata.
-func (g *Storage) Stat(ctx context.Context, path string) (*defs.Stat, error) {
+func (g *Storage) Stat(ctx context.Context, path string) (*pb.Stat, error) {
 	attrs, err := g.bucket.Object(path).Attrs(ctx)
 	if err == gstorage.ErrObjectNotExist {
 		return nil, defs.ErrNotExist
@@ -53,8 +55,8 @@ func (g *Storage) Stat(ctx context.Context, path string) (*defs.Stat, error) {
 		return nil, err
 	}
 
-	return &defs.Stat{
-		ModifiedTime: attrs.Updated,
+	return &pb.Stat{
+		ModifiedTime: timestamppb.New(attrs.Updated),
 		Size:         attrs.Size,
 	}, nil
 }

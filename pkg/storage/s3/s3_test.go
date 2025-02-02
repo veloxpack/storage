@@ -10,8 +10,8 @@ import (
 	"testing"
 	"time"
 
+	pb "github.com/mediaprodcast/proto/genproto/go/storage/v1"
 	"github.com/mediaprodcast/storage/pkg/storage"
-	"github.com/mediaprodcast/storage/pkg/storage/defs"
 	"github.com/ory/dockertest"
 	"github.com/ory/dockertest/docker"
 	"github.com/stretchr/testify/assert"
@@ -76,14 +76,14 @@ func TestS3(t *testing.T) {
 		}
 	}(t)
 
-	cfg := &defs.StorageConfig{
-		Driver: defs.AmazonS3,
-		S3: defs.S3Config{
+	cfg := &pb.StorageConfig{
+		Driver: pb.StorageDriver_S3,
+		S3: &pb.S3Config{
 			Endpoint:        endpoint,
-			AccessKeyID:     s3accessKey,
+			AccessKeyId:     s3accessKey,
 			SecretAccessKey: s3secretKey,
 			Bucket:          s3bucket,
-			EnableSSL:       false,
+			EnableSsl:       false,
 		},
 	}
 
@@ -126,8 +126,8 @@ func TestS3(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, int64(5), stat.Size)
-		assert.Equal(t, false, stat.ModifiedTime.Before(before))
-		assert.Equal(t, false, stat.ModifiedTime.After(now))
+		assert.Equal(t, false, stat.ModifiedTime.AsTime().Before(before))
+		assert.Equal(t, false, stat.ModifiedTime.AsTime().After(now))
 	})
 
 	t.Run("should create then delete file", func(t *testing.T) {

@@ -8,6 +8,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"github.com/mediaprodcast/storage/pkg/credentials"
 	"github.com/mediaprodcast/storage/pkg/storage"
 	"github.com/mediaprodcast/storage/pkg/storage/defs"
 	"go.opentelemetry.io/otel"
@@ -28,7 +29,7 @@ func StorageHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cfg, err := storage.Decode(cfgStr)
+	cfg, err := credentials.Decode(cfgStr)
 	if err != nil {
 		writeError(span, w, "invalid storage configuration", http.StatusUnprocessableEntity)
 		return

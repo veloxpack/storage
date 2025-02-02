@@ -6,7 +6,9 @@ import (
 	"os"
 	"path/filepath"
 
+	pb "github.com/mediaprodcast/proto/genproto/go/storage/v1"
 	"github.com/mediaprodcast/storage/pkg/storage/defs"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Storage is a filesystem storage.
@@ -48,7 +50,7 @@ func (fs *Storage) Save(ctx context.Context, content io.Reader, path string) err
 }
 
 // Stat returns path metadata.
-func (fs *Storage) Stat(ctx context.Context, path string) (*defs.Stat, error) {
+func (fs *Storage) Stat(ctx context.Context, path string) (*pb.Stat, error) {
 	fi, err := os.Stat(fs.abs(path))
 	if os.IsNotExist(err) {
 		return nil, defs.ErrNotExist
@@ -56,8 +58,8 @@ func (fs *Storage) Stat(ctx context.Context, path string) (*defs.Stat, error) {
 		return nil, err
 	}
 
-	return &defs.Stat{
-		ModifiedTime: fi.ModTime(),
+	return &pb.Stat{
+		ModifiedTime: timestamppb.New(fi.ModTime()),
 		Size:         fi.Size(),
 	}, nil
 }

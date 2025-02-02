@@ -1,17 +1,17 @@
-package storage
+package credentials
 
 import (
 	"testing"
 
 	"github.com/google/uuid"
-	"github.com/mediaprodcast/storage/pkg/storage/defs"
+	pb "github.com/mediaprodcast/proto/genproto/go/storage/v1"
 	"github.com/stretchr/testify/assert"
 )
 
 func TestEncode(t *testing.T) {
-	cfg := &defs.StorageConfig{
-		Driver: defs.Filesystem,
-		Filesystem: defs.FileSystemConfig{
+	cfg := &pb.StorageConfig{
+		Driver: pb.StorageDriver_FS,
+		Fs: &pb.FileSystemConfig{
 			DataPath: "./tmp",
 		},
 	}
@@ -31,7 +31,7 @@ func TestEncode(t *testing.T) {
 
 	// Test that the decoded config is the same as the original config
 	assert.Equal(t, cfg.Driver, decoded.Driver)
-	assert.Equal(t, cfg.Filesystem.DataPath, decoded.Filesystem.DataPath)
+	assert.Equal(t, cfg.Fs.DataPath, decoded.Fs.DataPath)
 }
 
 func TestDecodeInvalid(t *testing.T) {
@@ -46,9 +46,9 @@ func TestDecodeInvalid(t *testing.T) {
 }
 
 func TestEncodeDecodeConsistency(t *testing.T) {
-	cfg := &defs.StorageConfig{
-		Driver: defs.GoogleCloudStorage,
-		GCS: defs.GCSConfig{
+	cfg := &pb.StorageConfig{
+		Driver: pb.StorageDriver_GCS,
+		Gcs: &pb.GCSConfig{
 			CredentialsFile: "./path/to/credentials.json",
 			Bucket:          "bucket-name",
 		},
@@ -64,8 +64,8 @@ func TestEncodeDecodeConsistency(t *testing.T) {
 
 	// Check that the decoded config matches the original one
 	assert.Equal(t, cfg.Driver, decoded.Driver)
-	assert.Equal(t, cfg.GCS.CredentialsFile, decoded.GCS.CredentialsFile)
-	assert.Equal(t, cfg.GCS.Bucket, decoded.GCS.Bucket)
+	assert.Equal(t, cfg.Gcs.CredentialsFile, decoded.Gcs.CredentialsFile)
+	assert.Equal(t, cfg.Gcs.Bucket, decoded.Gcs.Bucket)
 }
 
 func TestDecodeEmptyString(t *testing.T) {
@@ -79,14 +79,14 @@ func TestDecodeEmptyString(t *testing.T) {
 
 // TestEncodeDecodeConsistencyForS3 checks encoding and decoding for Amazon S3 configuration
 func TestEncodeDecodeConsistencyForS3(t *testing.T) {
-	cfg := &defs.StorageConfig{
-		Driver: defs.AmazonS3,
-		S3: defs.S3Config{
+	cfg := &pb.StorageConfig{
+		Driver: pb.StorageDriver_S3,
+		S3: &pb.S3Config{
 			Endpoint:        "play.min.io",
-			AccessKeyID:     "Q3AM3UQ867SPQQA43P2F",
+			AccessKeyId:     "Q3AM3UQ867SPQQA43P2F",
 			SecretAccessKey: "zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG",
 			Bucket:          uuid.New().String(),
-			EnableSSL:       true,
+			EnableSsl:       true,
 		},
 	}
 
@@ -101,8 +101,8 @@ func TestEncodeDecodeConsistencyForS3(t *testing.T) {
 	// Check that the decoded config matches the original one
 	assert.Equal(t, cfg.Driver, decoded.Driver)
 	assert.Equal(t, cfg.S3.Endpoint, decoded.S3.Endpoint)
-	assert.Equal(t, cfg.S3.AccessKeyID, decoded.S3.AccessKeyID)
+	assert.Equal(t, cfg.S3.AccessKeyId, decoded.S3.AccessKeyId)
 	assert.Equal(t, cfg.S3.SecretAccessKey, decoded.S3.SecretAccessKey)
 	assert.Equal(t, cfg.S3.Bucket, decoded.S3.Bucket)
-	assert.Equal(t, cfg.S3.EnableSSL, decoded.S3.EnableSSL)
+	assert.Equal(t, cfg.S3.EnableSsl, decoded.S3.EnableSsl)
 }

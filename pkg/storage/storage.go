@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 
+	pb "github.com/mediaprodcast/proto/genproto/go/storage/v1"
 	"github.com/mediaprodcast/storage/pkg/storage/defs"
 	"github.com/mediaprodcast/storage/pkg/storage/fs"
 	"github.com/mediaprodcast/storage/pkg/storage/gcs"
@@ -11,15 +12,15 @@ import (
 )
 
 // NewStorage creates a new storage instance
-func NewStorage(cfg *defs.StorageConfig) (defs.Storage, error) {
+func NewStorage(cfg *pb.StorageConfig) (defs.Storage, error) {
 	switch cfg.Driver {
-	case defs.Filesystem:
+	case pb.StorageDriver_FS:
 		return fs.NewStorage(fs.Config{
-			Root: cfg.Filesystem.DataPath,
+			Root: cfg.Fs.DataPath,
 		}), nil
-	case defs.GoogleCloudStorage:
-		return gcs.NewStorage(context.Background(), cfg.GCS.CredentialsFile, cfg.GCS.Bucket)
-	case defs.AmazonS3:
+	case pb.StorageDriver_GCS:
+		return gcs.NewStorage(context.Background(), cfg.Gcs.CredentialsFile, cfg.Gcs.Bucket)
+	case pb.StorageDriver_S3:
 		return s3.NewStorage(cfg.S3)
 	default:
 		return nil, fmt.Errorf("storage driver %s does not exist", cfg.Driver)

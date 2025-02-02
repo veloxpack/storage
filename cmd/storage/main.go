@@ -13,7 +13,10 @@ import (
 	"github.com/mediaprodcast/commons/env"
 	"github.com/mediaprodcast/commons/tracer"
 	"github.com/mediaprodcast/storage/internal"
+	"github.com/rs/cors"
 	"go.uber.org/zap"
+	"golang.org/x/net/http2"
+	"golang.org/x/net/http2/h2c"
 )
 
 var httpAddr = env.GetString("HTTP_ADDR", ":9500")
@@ -40,17 +43,28 @@ func main() {
 	instanceID, registry, err := discovery.Register(ctx, discovery.StorageSvsName, httpAddr)
 	if err != nil {
 		logger.Error("Failed to register service", zap.Error(err))
+	} else {
+		defer registry.Deregister(ctx, instanceID, discovery.StorageSvsName)
 	}
-	defer registry.Deregister(ctx, instanceID, discovery.StorageSvsName)
 
 	mux := http.NewServeMux()
 
 	// Storage proxy
 	mux.HandleFunc("/", internal.StorageHandler)
 
+	// Enable CORS
+	c := cors.New(cors.Options{
+		AllowedOrigins:   []string{"*"},
+		AllowCredentials: true,
+	})
+
+	// Wrap the handler with CORS
+	handlerWithCORS := c.Handler(mux)
+
+	// HTTP2 Setup using h2c
 	server := &http.Server{
 		Addr:    httpAddr,
-		Handler: mux,
+		Handler: h2c.NewHandler(handlerWithCORS, &http2.Server{}),
 	}
 
 	// Run server in a goroutine

@@ -58,8 +58,8 @@ func TestFS(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, int64(5), stat.Size)
-		assert.False(t, stat.ModifiedTime.Before(before))
-		assert.False(t, stat.ModifiedTime.After(now))
+		assert.False(t, stat.ModifiedTime.AsTime().Before(before))
+		assert.False(t, stat.ModifiedTime.AsTime().After(now))
 	})
 
 	t.Run("should create then delete file", func(t *testing.T) {

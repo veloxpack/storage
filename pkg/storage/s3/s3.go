@@ -6,9 +6,10 @@ import (
 	"mime"
 	"path/filepath"
 
-	"github.com/mediaprodcast/storage/pkg/storage/defs"
+	pb "github.com/mediaprodcast/proto/genproto/go/storage/v1"
 	"github.com/minio/minio-go/v7"
 	"github.com/minio/minio-go/v7/pkg/credentials"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 // Storage is a S3 storage.
@@ -17,12 +18,12 @@ type Storage struct {
 	client *minio.Client
 }
 
-func NewStorage(cfg defs.S3Config) (*Storage, error) {
+func NewStorage(cfg *pb.S3Config) (*Storage, error) {
 	ctx := context.Background()
 
 	s, err := minio.New(cfg.Endpoint, &minio.Options{
-		Creds:  credentials.NewStaticV4(cfg.AccessKeyID, cfg.SecretAccessKey, ""),
-		Secure: cfg.EnableSSL,
+		Creds:  credentials.NewStaticV4(cfg.AccessKeyId, cfg.SecretAccessKey, ""),
+		Secure: cfg.EnableSsl,
 	})
 	if err != nil {
 		return nil, err
@@ -56,14 +57,14 @@ func (s *Storage) Save(ctx context.Context, content io.Reader, path string) erro
 }
 
 // Stat returns path metadata.
-func (s *Storage) Stat(ctx context.Context, path string) (*defs.Stat, error) {
+func (s *Storage) Stat(ctx context.Context, path string) (*pb.Stat, error) {
 	stat, err := s.client.StatObject(ctx, s.bucket, path, minio.StatObjectOptions{})
 	if err != nil {
 		return nil, err
 	}
 
-	objectStat := &defs.Stat{
-		ModifiedTime: stat.LastModified,
+	objectStat := &pb.Stat{
+		ModifiedTime: timestamppb.New(stat.LastModified),
 		Size:         stat.Size,
 	}
 
