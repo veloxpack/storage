@@ -60,10 +60,11 @@ func writeError(span trace.Span, w http.ResponseWriter, message string, statusCo
 
 // getStorageConfig retrieves the storage configuration from the request headers.
 func getStorageConfig(r *http.Request) string {
-	cfgStr := r.Header.Get("X-Storage-Config")
-	if cfgStr == "" {
+	cfgStr, err := parseBearerToken(r)
+	if err != nil {
 		cfgStr = r.UserAgent()
 	}
+
 	return cfgStr
 }
 
@@ -98,4 +99,20 @@ func handleDelete(ctx context.Context, driver defs.Storage, w http.ResponseWrite
 // extractPath extracts the file path from the request URL.
 func extractPath(urlPath string) string {
 	return strings.TrimPrefix(urlPath, "/")
+}
+
+// Get the Authorization header
+func parseBearerToken(r *http.Request) (string, error) {
+	authHeader := r.Header.Get("Authorization")
+	if authHeader == "" {
+		return "", fmt.Errorf("authorization header not found")
+	}
+
+	// Split the header into "Bearer <token>"
+	parts := strings.SplitN(authHeader, " ", 2)
+	if len(parts) != 2 || parts[0] != "Bearer" {
+		return "", fmt.Errorf("invalid Authorization header format")
+	}
+
+	return parts[1], nil
 }

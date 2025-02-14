@@ -55,7 +55,7 @@ Here’s an example of defining an upload URL and using it with a media packager
 
 ### Storage Configuration
 
-Before sending the storage configuration, it must be encoded into a Base64 string and included in the `User-Agent` or `X-Storage-Config` header.
+Before sending the storage configuration, it must be encoded into a Base64 string and included in the `User-Agent` or `Authorization` header.
 
 #### Sample Storage Config (Raw JSON)
 
@@ -107,7 +107,7 @@ packager \
     --hls_master_playlist_output "${UPLOAD_URL}/master.m3u8" \
     --hls_playlist_type LIVE \
     --user_agent "${FS_STORAGE_BASE64}" \
-    # --header "X-Storage-Config: ${FS_STORAGE_BASE64}" \
+    # --header "Authorization: Bearer ${FS_STORAGE_BASE64}" \
     --vmodule=http_file=1
 ```
 
@@ -122,7 +122,7 @@ packager \
 3. **Transmission Methods:**
    - The encoded config is sent via either:
      - The `User-Agent` field.
-     - The `X-Storage-Config` HTTP header.
+     - The `Authorization` HTTP header.
 
 4. **`UPLOAD_URL`:**
    - Specifies the endpoint of the Storage Broker service where HLS segments will be uploaded.
