@@ -32,20 +32,9 @@ func main() {
 		logger.Fatal("Could not set global tracer", zap.Error(err))
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	// Handle graceful shutdown
 	sigChan := make(chan os.Signal, 1)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-
-	// Register service in Consul
-	instanceID, registry, err := discovery.Register(ctx, discovery.StorageSvsName, httpAddr)
-	if err != nil {
-		logger.Error("Failed to register service", zap.Error(err))
-	} else {
-		defer registry.Deregister(ctx, instanceID, discovery.StorageSvsName)
-	}
 
 	mux := http.NewServeMux()
 
