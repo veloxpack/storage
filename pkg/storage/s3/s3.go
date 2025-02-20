@@ -82,3 +82,29 @@ func (s *Storage) Delete(ctx context.Context, path string) error {
 	err := s.client.RemoveObject(ctx, s.bucket, path, minio.RemoveObjectOptions{})
 	return err
 }
+
+// List lists path contents.
+func (s *Storage) List(ctx context.Context, path string) ([]*pb.Stat, error) {
+	var objects []*pb.Stat
+
+	doneCh := make(chan struct{})
+	defer close(doneCh)
+
+	for object := range s.client.ListObjects(ctx, s.bucket, minio.ListObjectsOptions{
+		Prefix:    path,
+		Recursive: true,
+	}) {
+		if object.Err != nil {
+			return nil, object.Err
+		}
+
+		objects = append(objects, &pb.Stat{
+			ModifiedTime: timestamppb.New(object.LastModified),
+			Size:         object.Size,
+			Name:         object.Key,
+			ContentType:  mime.TypeByExtension(filepath.Ext(object.Key)),
+		})
+	}
+
+	return objects, nil
+}

@@ -5,13 +5,12 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"runtime"
 	"syscall"
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/mediaprodcast/commons/discovery"
 	"github.com/mediaprodcast/commons/env"
-	"github.com/mediaprodcast/commons/tracer"
 	"github.com/mediaprodcast/storage/internal"
 	"github.com/rs/cors"
 	"go.uber.org/zap"
@@ -22,15 +21,10 @@ import (
 var httpAddr = env.GetString("HTTP_ADDR", ":9500")
 
 func main() {
-	logger, _ := zap.NewProduction()
+	logger, _ := zap.NewDevelopment()
 	defer logger.Sync()
 
 	zap.ReplaceGlobals(logger)
-
-	// Set up global tracing
-	if err := tracer.SetGlobalTracer(context.TODO(), discovery.StorageSvsName); err != nil {
-		logger.Fatal("Could not set global tracer", zap.Error(err))
-	}
 
 	// Handle graceful shutdown
 	sigChan := make(chan os.Signal, 1)
@@ -38,8 +32,11 @@ func main() {
 
 	mux := http.NewServeMux()
 
-	// Storage proxy
-	mux.HandleFunc("/", internal.StorageHandler)
+	// Storage handler
+	storage := internal.NewStorageHandler(runtime.NumCPU(), runtime.NumCPU())
+	defer storage.Shutdown()
+
+	mux.HandleFunc("/", storage.RequestHandler)
 
 	// Enable CORS
 	c := cors.New(cors.Options{

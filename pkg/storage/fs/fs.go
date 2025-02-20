@@ -3,6 +3,7 @@ package fs
 import (
 	"context"
 	"io"
+	"mime"
 	"os"
 	"path/filepath"
 
@@ -61,6 +62,8 @@ func (fs *Storage) Stat(ctx context.Context, path string) (*pb.Stat, error) {
 	return &pb.Stat{
 		ModifiedTime: timestamppb.New(fi.ModTime()),
 		Size:         fi.Size(),
+		ContentType:  mime.TypeByExtension(filepath.Ext(fi.Name())),
+		Name:         fi.Name(),
 	}, nil
 }
 
@@ -76,4 +79,32 @@ func (fs *Storage) Open(ctx context.Context, path string) (io.ReadCloser, error)
 // Delete deletes path.
 func (fs *Storage) Delete(ctx context.Context, path string) error {
 	return os.Remove(fs.abs(path))
+}
+
+// List lists path contents.
+func (fs *Storage) List(ctx context.Context, path string) ([]*pb.Stat, error) {
+	abs := fs.abs(path)
+	f, err := os.Open(abs)
+	if os.IsNotExist(err) {
+		return nil, defs.ErrNotExist
+	} else if err != nil {
+		return nil, err
+	}
+	defer f.Close()
+
+	fis, err := f.Readdir(-1)
+	if err != nil {
+		return nil, err
+	}
+
+	stats := make([]*pb.Stat, 0, len(fis))
+	for _, fi := range fis {
+		stats = append(stats, &pb.Stat{
+			Name:         fi.Name(),
+			Size:         fi.Size(),
+			ModifiedTime: timestamppb.New(fi.ModTime()),
+			ContentType:  mime.TypeByExtension(filepath.Ext(fi.Name())),
+		})
+	}
+	return stats, nil
 }

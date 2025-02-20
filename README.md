@@ -87,10 +87,10 @@ The above JSON is Base64-encoded before being sent.
 
 ```bash
 # Base64-encoded File System storage config
-FS_STORAGE_BASE64="eyJkcml2ZXIiOiJGUyIsICJmcyI6eyJkYXRhUGF0aCI6Ii4vdG1wIn0sICJzMyI6bnVsbCwgImdjcyI6bnVsbH0="
+FS_STORAGE_BASE64="JWT access token"
 
 # Base64-encoded S3 storage config
-S3_STORAGE_BASE64="eyJkcml2ZXIiOiJTMyIsImZzIjpudWxsLCJzMyI6eyJlbmRwb2ludCI6InBsYXkubWluLmlvIiwiYWNjZXNzS2V5SWQiOiJRM0FNM1VRODY3U1BRUUE0M1AyRiIsInNlY3JldEFjY2Vzc0tleSI6Inp1Zit0ZnRlU2xzd1J1N0JKODZ3ZWtpdG5pZklMYlphbTFLWVkzVEciLCJyZWdpb24iOiIiLCJidWNrZXQiOiJiZmY0MDk2Zi1iNDU1LTQwYjctOTU0MC1kNTFmNjA0ZmY3YzkiLCJlbmFibGVTc2wiOnRydWUsInVzZVBhdGhTdHlsZSI6ZmFsc2V9LCJnY3MiOm51bGx9"
+S3_STORAGE_BASE64="JWT access token"
 ```
 
 ### Upload and Packaging Process

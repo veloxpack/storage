@@ -74,3 +74,26 @@ func (g *Storage) Open(ctx context.Context, path string) (io.ReadCloser, error) 
 func (g *Storage) Delete(ctx context.Context, path string) error {
 	return g.bucket.Object(path).Delete(ctx)
 }
+
+// List lists path contents.
+func (g *Storage) List(ctx context.Context, path string) ([]*pb.Stat, error) {
+	it := g.bucket.Objects(ctx, &gstorage.Query{Prefix: path})
+	var stats []*pb.Stat
+	for {
+		attrs, err := it.Next()
+		if err == io.EOF {
+			break
+		} else if err != nil {
+			return nil, err
+		}
+
+		stats = append(stats, &pb.Stat{
+			ModifiedTime: timestamppb.New(attrs.Updated),
+			Size:         attrs.Size,
+			Name:         attrs.Name,
+			ContentType:  attrs.ContentType,
+		})
+	}
+
+	return stats, nil
+}
