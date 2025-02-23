@@ -9,7 +9,7 @@ import (
 	"github.com/mediaprodcast/storage/pkg/server/middleware"
 	"github.com/mediaprodcast/storage/pkg/server/utils"
 	"github.com/mediaprodcast/storage/pkg/server/worker"
-	defs "github.com/mediaprodcast/storage/pkg/storage/defs"
+	"github.com/mediaprodcast/storage/pkg/storage/provider"
 	"go.uber.org/zap"
 )
 
@@ -33,7 +33,7 @@ func NewUploadHandler(
 	}
 }
 
-func (h *UploadHandler) Handle(ctx context.Context, storageBackend defs.Storage, w http.ResponseWriter, r *http.Request) {
+func (h *UploadHandler) Handle(ctx context.Context, storageBackend provider.Storage, w http.ResponseWriter, r *http.Request) {
 	path := middleware.GetValidatedPath(ctx)
 
 	if h.isChunked(r) {
@@ -48,7 +48,7 @@ func (h *UploadHandler) Handle(ctx context.Context, storageBackend defs.Storage,
 	}
 
 	task := func() {
-		if err := storageBackend.Save(ctx, bytes.NewReader(body), path); err != nil {
+		if err := storageBackend.Save(context.Background(), bytes.NewReader(body), path); err != nil {
 			h.logger.Error("Upload failed", zap.Error(err))
 		}
 	}

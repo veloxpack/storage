@@ -12,7 +12,7 @@ import (
 
 	"github.com/mediaprodcast/storage/pkg/server/middleware"
 	"github.com/mediaprodcast/storage/pkg/server/utils"
-	defs "github.com/mediaprodcast/storage/pkg/storage/defs"
+	"github.com/mediaprodcast/storage/pkg/storage/provider"
 	"go.uber.org/zap"
 )
 
@@ -28,7 +28,7 @@ func NewDownloadHandler(streaming *StreamingHandler) *DownloadHandler {
 	}
 }
 
-func (h *DownloadHandler) Handle(ctx context.Context, storageBackend defs.Storage, w http.ResponseWriter, r *http.Request) {
+func (h *DownloadHandler) Handle(ctx context.Context, storageBackend provider.Storage, w http.ResponseWriter, r *http.Request) {
 	path := middleware.GetValidatedPath(ctx)
 
 	if au, exists := h.streaming.GetActiveUpload(path); exists {
@@ -44,7 +44,7 @@ func (h *DownloadHandler) Handle(ctx context.Context, storageBackend defs.Storag
 	h.listFiles(ctx, storageBackend, w, path)
 }
 
-func (h *DownloadHandler) serveFile(ctx context.Context, storageBackend defs.Storage, w http.ResponseWriter, path string) {
+func (h *DownloadHandler) serveFile(ctx context.Context, storageBackend provider.Storage, w http.ResponseWriter, path string) {
 	contentType := mime.TypeByExtension(filepath.Ext(path))
 	if contentType != "" {
 		w.Header().Set("Content-Type", contentType)
@@ -53,7 +53,7 @@ func (h *DownloadHandler) serveFile(ctx context.Context, storageBackend defs.Sto
 	reader, err := storageBackend.Open(ctx, path)
 	if err != nil {
 		status := http.StatusInternalServerError
-		if errors.Is(err, defs.ErrNotExist) {
+		if errors.Is(err, provider.ErrNotExist) {
 			status = http.StatusNotFound
 		}
 		utils.WriteError(w, "File open failed", status, err)
@@ -66,11 +66,11 @@ func (h *DownloadHandler) serveFile(ctx context.Context, storageBackend defs.Sto
 	}
 }
 
-func (h *DownloadHandler) listFiles(ctx context.Context, storageBackend defs.Storage, w http.ResponseWriter, path string) {
+func (h *DownloadHandler) listFiles(ctx context.Context, storageBackend provider.Storage, w http.ResponseWriter, path string) {
 	files, err := storageBackend.List(ctx, path)
 	if err != nil {
 		status := http.StatusInternalServerError
-		if errors.Is(err, defs.ErrNotExist) {
+		if errors.Is(err, provider.ErrNotExist) {
 			status = http.StatusNotFound
 		}
 		utils.WriteError(w, "List files failed", status, err)

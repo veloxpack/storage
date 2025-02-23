@@ -11,7 +11,7 @@ import (
 	"time"
 
 	"github.com/mediaprodcast/storage/pkg/server/utils"
-	defs "github.com/mediaprodcast/storage/pkg/storage/defs"
+	"github.com/mediaprodcast/storage/pkg/storage/provider"
 )
 
 type ActiveUpload struct {
@@ -40,7 +40,7 @@ func NewStreamingHandler() *StreamingHandler {
 
 func (h *StreamingHandler) HandleChunkedUpload(
 	ctx context.Context,
-	storageBackend defs.Storage,
+	storageBackend provider.Storage,
 	w http.ResponseWriter,
 	r *http.Request,
 	path string,
@@ -80,7 +80,7 @@ func (h *StreamingHandler) HandleChunkedUpload(
 
 	au.mu.RLock()
 	defer au.mu.RUnlock()
-	if err := storageBackend.Save(ctx, bytes.NewReader(au.buffer), path); err != nil {
+	if err := storageBackend.Save(context.Background(), bytes.NewReader(au.buffer), path); err != nil {
 		utils.WriteError(w, "Final save failed", http.StatusInternalServerError, err)
 		return
 	}

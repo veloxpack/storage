@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mediaprodcast/storage/pkg/storage/defs"
+	"github.com/mediaprodcast/storage/pkg/storage/provider"
 	"github.com/stretchr/testify/assert"
 )
 
@@ -28,7 +28,7 @@ func TestFS(t *testing.T) {
 		ctx := context.Background()
 
 		_, err := s.Stat(ctx, "doesnotexist")
-		assert.EqualError(t, err, defs.ErrNotExist.Error())
+		assert.EqualError(t, err, provider.ErrNotExist.Error())
 	})
 
 	t.Run("should create file", func(t *testing.T) {
@@ -58,8 +58,8 @@ func TestFS(t *testing.T) {
 		assert.NoError(t, err)
 
 		assert.Equal(t, int64(5), stat.Size)
-		assert.False(t, stat.ModifiedTime.AsTime().Before(before))
-		assert.False(t, stat.ModifiedTime.AsTime().After(now))
+		assert.False(t, stat.ModifiedTime.Before(before))
+		assert.False(t, stat.ModifiedTime.After(now))
 	})
 
 	t.Run("should create then delete file", func(t *testing.T) {
@@ -75,7 +75,7 @@ func TestFS(t *testing.T) {
 		assert.NoError(t, err)
 
 		_, err = s.Stat(ctx, "world")
-		assert.EqualError(t, err, defs.ErrNotExist.Error())
+		assert.EqualError(t, err, provider.ErrNotExist.Error())
 	})
 
 	t.Run("should create then open file", func(t *testing.T) {
@@ -103,6 +103,6 @@ func TestFS(t *testing.T) {
 		ctx := context.Background()
 
 		_, err := s.Open(ctx, "world")
-		assert.EqualError(t, err, defs.ErrNotExist.Error())
+		assert.EqualError(t, err, provider.ErrNotExist.Error())
 	})
 }

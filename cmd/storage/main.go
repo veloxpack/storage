@@ -1,6 +1,9 @@
 package main
 
-import "github.com/mediaprodcast/storage/pkg/server"
+import (
+	_ "github.com/joho/godotenv/autoload"
+	"github.com/mediaprodcast/storage/pkg/server"
+)
 
 func main() {
 	server.ListenAndServe(

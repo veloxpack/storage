@@ -7,9 +7,7 @@ import (
 	"os"
 	"path/filepath"
 
-	pb "github.com/mediaprodcast/proto/genproto/go/storage/v1"
-	"github.com/mediaprodcast/storage/pkg/storage/defs"
-	"google.golang.org/protobuf/types/known/timestamppb"
+	"github.com/mediaprodcast/storage/pkg/storage/provider"
 )
 
 // Storage is a filesystem storage.
@@ -51,16 +49,16 @@ func (fs *Storage) Save(ctx context.Context, content io.Reader, path string) err
 }
 
 // Stat returns path metadata.
-func (fs *Storage) Stat(ctx context.Context, path string) (*pb.Stat, error) {
+func (fs *Storage) Stat(ctx context.Context, path string) (*provider.Stat, error) {
 	fi, err := os.Stat(fs.abs(path))
 	if os.IsNotExist(err) {
-		return nil, defs.ErrNotExist
+		return nil, provider.ErrNotExist
 	} else if err != nil {
 		return nil, err
 	}
 
-	return &pb.Stat{
-		ModifiedTime: timestamppb.New(fi.ModTime()),
+	return &provider.Stat{
+		ModifiedTime: fi.ModTime(),
 		Size:         fi.Size(),
 		ContentType:  mime.TypeByExtension(filepath.Ext(fi.Name())),
 		Name:         fi.Name(),
@@ -71,7 +69,7 @@ func (fs *Storage) Stat(ctx context.Context, path string) (*pb.Stat, error) {
 func (fs *Storage) Open(ctx context.Context, path string) (io.ReadCloser, error) {
 	f, err := os.Open(fs.abs(path))
 	if os.IsNotExist(err) {
-		return nil, defs.ErrNotExist
+		return nil, provider.ErrNotExist
 	}
 	return f, err
 }
@@ -82,11 +80,11 @@ func (fs *Storage) Delete(ctx context.Context, path string) error {
 }
 
 // List lists path contents.
-func (fs *Storage) List(ctx context.Context, path string) ([]*pb.Stat, error) {
+func (fs *Storage) List(ctx context.Context, path string) ([]*provider.Stat, error) {
 	abs := fs.abs(path)
 	f, err := os.Open(abs)
 	if os.IsNotExist(err) {
-		return nil, defs.ErrNotExist
+		return nil, provider.ErrNotExist
 	} else if err != nil {
 		return nil, err
 	}
@@ -97,12 +95,12 @@ func (fs *Storage) List(ctx context.Context, path string) ([]*pb.Stat, error) {
 		return nil, err
 	}
 
-	stats := make([]*pb.Stat, 0, len(fis))
+	stats := make([]*provider.Stat, 0, len(fis))
 	for _, fi := range fis {
-		stats = append(stats, &pb.Stat{
+		stats = append(stats, &provider.Stat{
 			Name:         fi.Name(),
 			Size:         fi.Size(),
-			ModifiedTime: timestamppb.New(fi.ModTime()),
+			ModifiedTime: fi.ModTime(),
 			ContentType:  mime.TypeByExtension(filepath.Ext(fi.Name())),
 		})
 	}

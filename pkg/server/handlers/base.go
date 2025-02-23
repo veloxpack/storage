@@ -2,14 +2,13 @@ package handlers
 
 import (
 	"context"
-	"fmt"
 	"net/http"
+	"os"
 
-	storageApi "github.com/mediaprodcast/commons/api/storage"
 	"github.com/mediaprodcast/storage/pkg/server/utils"
 	"github.com/mediaprodcast/storage/pkg/server/worker"
 	"github.com/mediaprodcast/storage/pkg/storage"
-	defs "github.com/mediaprodcast/storage/pkg/storage/defs"
+	"github.com/mediaprodcast/storage/pkg/storage/provider"
 )
 
 type StorageHandler struct {
@@ -31,7 +30,7 @@ func NewStorageHandler(uploadPool, deletePool *worker.Pool) *StorageHandler {
 
 func (h *StorageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	ctx := r.Context()
-	storageBackend, err := h.getStoragestorageBackend(ctx)
+	storageBackend, err := h.getStorageBackend(ctx)
 	if err != nil {
 		utils.WriteError(w, "Storage init failed", http.StatusInternalServerError, err)
 		return
@@ -49,12 +48,11 @@ func (h *StorageHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
-func (h *StorageHandler) getStoragestorageBackend(ctx context.Context) (defs.Storage, error) {
-	cfg, err := storageApi.DecodeStorageConfig("token")
-	if err != nil {
-		return nil, fmt.Errorf("invalid storage config: %w", err)
-	}
-	return storage.NewStorage(cfg)
+func (h *StorageHandler) getStorageBackend(ctx context.Context) (provider.Storage, error) {
+	return storage.NewStorage(
+		storage.WithDriver(os.Getenv("STORAGE_DRIVER")),
+		storage.WithOutputLocation(os.Getenv("STORAGE_OUTPUT_LOCATION")),
+	)
 }
 
 func (h *StorageHandler) Shutdown() {

@@ -1,4 +1,6 @@
-FROM golang:1.22.5-alpine AS golang
+ARG GO_VERSION=1.23.5
+
+FROM golang:${GO_VERSION}-alpine AS golang
 
 WORKDIR /app
 COPY . .

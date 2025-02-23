@@ -7,7 +7,7 @@ import (
 	"github.com/mediaprodcast/storage/pkg/server/middleware"
 	"github.com/mediaprodcast/storage/pkg/server/utils"
 	"github.com/mediaprodcast/storage/pkg/server/worker"
-	defs "github.com/mediaprodcast/storage/pkg/storage/defs"
+	"github.com/mediaprodcast/storage/pkg/storage/provider"
 	"go.uber.org/zap"
 )
 
@@ -23,11 +23,11 @@ func NewDeleteHandler(pool *worker.Pool) *DeleteHandler {
 	}
 }
 
-func (h *DeleteHandler) Handle(ctx context.Context, storageBackend defs.Storage, w http.ResponseWriter, r *http.Request) {
+func (h *DeleteHandler) Handle(ctx context.Context, storageBackend provider.Storage, w http.ResponseWriter, r *http.Request) {
 	path := middleware.GetValidatedPath(ctx)
 
 	task := func() {
-		if err := storageBackend.Delete(ctx, path); err != nil {
+		if err := storageBackend.Delete(context.Background(), path); err != nil {
 			h.logger.Error("Delete failed", zap.String("path", path), zap.Error(err))
 		}
 	}

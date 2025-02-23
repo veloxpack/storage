@@ -1,6 +1,6 @@
-# Storage Broker Service
+# Storage
 
-The Storage Broker service acts as an intermediary, receiving media files from other components within the platform and routing them to designated storage locations. It also generates absolute media URLs for streams and files to ensure accessibility.
+The Storage service acts as an intermediary, receiving media files from other components within the platform and routing them to designated storage locations. It also generates absolute media URLs for streams and files to ensure accessibility.
 
 **Key Responsibilities:**
 
@@ -10,9 +10,18 @@ The Storage Broker service acts as an intermediary, receiving media files from o
 * **Route to Storage:** Determines the appropriate storage destination based on defined rules and internal configurations.
 * **Support Storage Backends:** Integrates with various storage backends, such as:
     * **Storage (FS):** File System storage.
-    * **Storage (S3):** Amazon S3 compatible storage (e.g., AWS S3, Google Cloud Storage, Azure Blob Storage).
-* **Ensure Data Integrity:** Implements mechanisms to verify data integrity during transfer and storage.
-
+    * **Storage via rclone:** Uses [rclone](https://rclone.org/overview/) for storage proxying, supporting multiple cloud storage providers.
+        * Configurable via environment variables:
+          ```sh
+          STORAGE_ADDR=:9500
+          STORAGE_DRIVER=s3
+          STORAGE_OUTPUT_LOCATION=bucket-name or root directory
+          RCLONE_S3_PROVIDER="Minio"
+          RCLONE_S3_ACCESS_KEY_ID="Q3AM3UQ867SPQQA43P2F"
+          RCLONE_S3_SECRET_ACCESS_KEY="zuf+tfteSlswRu7BJ86wekitnifILbZam1KYY3TG"
+          RCLONE_S3_ENDPOINT="play.min.io"
+          RCLONE_S3_ACL="public-read"
+          ```
 ## Process Flow
 
 1. **Media Reception:**
@@ -53,46 +62,6 @@ Here's your updated Markdown with both the raw JSON storage configuration and it
 
 Here’s an example of defining an upload URL and using it with a media packager to stream HLS segments to the **Storage Broker**.
 
-### Storage Configuration
-
-Before sending the storage configuration, it must be encoded into a Base64 string and included in the `User-Agent` or `Authorization` header.
-
-#### Sample Storage Config (Raw JSON)
-
-```json
-{
-  "driver": "fs, s3, or gcs",
-  "fs": {
-    "dataPath": "./tmp"
-  },
-  "s3": {
-    "endpoint": "",
-    "accessKeyId": "",
-    "secretAccessKey": "",
-    "region": "",
-    "bucket": "",
-    "enableSSL": false,
-    "usePathStyle": false
-  },
-  "gcs": {
-    "credentialsFile": "",
-    "bucket": ""
-  }
-}
-```
-
-#### Base64 Encoded Storage Config
-
-The above JSON is Base64-encoded before being sent.
-
-```bash
-# Base64-encoded File System storage config
-FS_STORAGE_BASE64="JWT access token"
-
-# Base64-encoded S3 storage config
-S3_STORAGE_BASE64="JWT access token"
-```
-
 ### Upload and Packaging Process
 
 ```bash
@@ -106,28 +75,18 @@ packager \
     "input=video.mp4,stream=video,segment_template=${UPLOAD_URL}/video-\$Number\$.ts,playlist_name=video.m3u8" \
     --hls_master_playlist_output "${UPLOAD_URL}/master.m3u8" \
     --hls_playlist_type LIVE \
-    --user_agent "${FS_STORAGE_BASE64}" \
-    # --header "Authorization: Bearer ${FS_STORAGE_BASE64}" \
     --vmodule=http_file=1
 ```
 
-### Explanation of the Example:
+## Docker Build Instructions
 
-1. **Raw JSON Storage Config:**
-   - Shows the actual storage configuration before encoding.
+To build the Storage Service Docker image, run the following command:
 
-2. **Base64 Encoding:**
-   - The JSON storage config is converted into Base64 format before being sent.
+```sh
+docker buildx build --platform linux/arm64,linux/amd64 -t storage:latest \
+  --build-arg GO_VERSION=1.23.5 \
+  .
+```
 
-3. **Transmission Methods:**
-   - The encoded config is sent via either:
-     - The `User-Agent` field.
-     - The `Authorization` HTTP header.
+This command builds the `storage` image using the specified versions of dependencies and tools.
 
-4. **`UPLOAD_URL`:**
-   - Specifies the endpoint of the Storage Broker service where HLS segments will be uploaded.
-
-5. **Protocol:**
-   - Media segments and playlists are sent to the Storage Broker using HTTP PUT.
-
----
