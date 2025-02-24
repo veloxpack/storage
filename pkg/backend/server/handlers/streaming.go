@@ -10,7 +10,7 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mediaprodcast/storage/pkg/server/utils"
+	"github.com/mediaprodcast/storage/pkg/backend/server/utils"
 	"github.com/mediaprodcast/storage/pkg/storage/provider"
 )
 

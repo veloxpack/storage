@@ -6,9 +6,9 @@ import (
 	"io"
 	"net/http"
 
-	"github.com/mediaprodcast/storage/pkg/server/middleware"
-	"github.com/mediaprodcast/storage/pkg/server/utils"
-	"github.com/mediaprodcast/storage/pkg/server/worker"
+	"github.com/mediaprodcast/storage/pkg/backend/server/middleware"
+	"github.com/mediaprodcast/storage/pkg/backend/server/utils"
+	"github.com/mediaprodcast/storage/pkg/backend/server/worker"
 	"github.com/mediaprodcast/storage/pkg/storage/provider"
 	"go.uber.org/zap"
 )
