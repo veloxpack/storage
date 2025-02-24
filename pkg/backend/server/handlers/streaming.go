@@ -10,8 +10,8 @@ import (
 	"sync"
 	"time"
 
-	"github.com/mediaprodcast/storage/pkg/backend/server/utils"
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
+	"github.com/veloxpack/storage/pkg/backend/server/utils"
+	"github.com/veloxpack/storage/pkg/storage/provider"
 )
 
 type ActiveUpload struct {

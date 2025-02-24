@@ -1,4 +1,4 @@
-module github.com/mediaprodcast/storage
+module github.com/veloxpack/storage
 
 go 1.23.5
 

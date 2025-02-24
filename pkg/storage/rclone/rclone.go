@@ -7,7 +7,7 @@ import (
 	"io"
 	"time"
 
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
+	"github.com/veloxpack/storage/pkg/storage/provider"
 	// _ "github.com/rclone/rclone/backend/all" // import all backends
 	_ "github.com/rclone/rclone/backend/s3"
 	"github.com/rclone/rclone/fs"

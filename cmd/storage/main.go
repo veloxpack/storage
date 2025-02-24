@@ -9,9 +9,9 @@ import (
 	"time"
 
 	_ "github.com/joho/godotenv/autoload"
-	"github.com/mediaprodcast/storage/pkg/backend"
-	"github.com/mediaprodcast/storage/pkg/backend/server"
-	"github.com/mediaprodcast/storage/pkg/storage"
+	"github.com/veloxpack/storage/pkg/backend"
+	"github.com/veloxpack/storage/pkg/backend/server"
+	"github.com/veloxpack/storage/pkg/storage"
 	"go.uber.org/zap"
 )
 

@@ -7,9 +7,9 @@ import (
 	"net/http"
 	"os"
 
-	"github.com/mediaprodcast/storage/pkg/backend/server"
-	"github.com/mediaprodcast/storage/pkg/storage"
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
+	"github.com/veloxpack/storage/pkg/backend/server"
+	"github.com/veloxpack/storage/pkg/storage"
+	"github.com/veloxpack/storage/pkg/storage/provider"
 )
 
 // StorageBackend manages storage backend and server configuration

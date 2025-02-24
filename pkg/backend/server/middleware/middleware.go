@@ -5,7 +5,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/mediaprodcast/storage/pkg/backend/server/utils"
+	"github.com/veloxpack/storage/pkg/backend/server/utils"
 	"go.uber.org/zap"
 )
 

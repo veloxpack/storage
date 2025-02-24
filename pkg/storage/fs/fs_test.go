@@ -8,7 +8,7 @@ import (
 	"testing"
 	"time"
 
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
+	"github.com/veloxpack/storage/pkg/storage/provider"
 	"github.com/stretchr/testify/assert"
 )
 

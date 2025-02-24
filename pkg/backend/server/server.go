@@ -3,12 +3,12 @@ package server
 import (
 	"net/http"
 
-	"github.com/mediaprodcast/storage/pkg/backend/server/handlers"
-	"github.com/mediaprodcast/storage/pkg/backend/server/middleware"
-	"github.com/mediaprodcast/storage/pkg/backend/server/worker"
-	"github.com/mediaprodcast/storage/pkg/storage"
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
 	"github.com/rs/cors"
+	"github.com/veloxpack/storage/pkg/backend/server/handlers"
+	"github.com/veloxpack/storage/pkg/backend/server/middleware"
+	"github.com/veloxpack/storage/pkg/backend/server/worker"
+	"github.com/veloxpack/storage/pkg/storage"
+	"github.com/veloxpack/storage/pkg/storage/provider"
 	"go.uber.org/zap"
 )
 

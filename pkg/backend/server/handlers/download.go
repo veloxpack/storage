@@ -10,9 +10,9 @@ import (
 	"path/filepath"
 	"time"
 
-	"github.com/mediaprodcast/storage/pkg/backend/server/middleware"
-	"github.com/mediaprodcast/storage/pkg/backend/server/utils"
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
+	"github.com/veloxpack/storage/pkg/backend/server/middleware"
+	"github.com/veloxpack/storage/pkg/backend/server/utils"
+	"github.com/veloxpack/storage/pkg/storage/provider"
 	"go.uber.org/zap"
 )
 

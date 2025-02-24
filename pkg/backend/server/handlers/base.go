@@ -3,9 +3,9 @@ package handlers
 import (
 	"net/http"
 
-	"github.com/mediaprodcast/storage/pkg/backend/server/utils"
-	"github.com/mediaprodcast/storage/pkg/backend/server/worker"
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
+	"github.com/veloxpack/storage/pkg/backend/server/utils"
+	"github.com/veloxpack/storage/pkg/backend/server/worker"
+	"github.com/veloxpack/storage/pkg/storage/provider"
 )
 
 type StorageHandler struct {

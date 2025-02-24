@@ -1,9 +1,9 @@
 package storage
 
 import (
-	"github.com/mediaprodcast/storage/pkg/storage/fs"
-	"github.com/mediaprodcast/storage/pkg/storage/provider"
-	"github.com/mediaprodcast/storage/pkg/storage/rclone"
+	"github.com/veloxpack/storage/pkg/storage/fs"
+	"github.com/veloxpack/storage/pkg/storage/provider"
+	"github.com/veloxpack/storage/pkg/storage/rclone"
 )
 
 // StorageOption defines a functional option for configuring the storage.
